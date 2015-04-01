@@ -3,11 +3,24 @@ package com.js.askeleton;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
 public class ApplicationTest extends ApplicationTestCase<Application> {
+
     public ApplicationTest() {
         super(Application.class);
     }
+
+    // All unit tests are methods starting with prefix 'test'
+
+    public void testExample() {
+        final int a = 2;
+        final int b = 2;
+        assertEquals(a, b);
+    }
+
+    public void willNotExecuteTestFailure() {
+        final int a = 2;
+        final int b = 3;
+        assertEquals(a, b);
+    }
+
 }
