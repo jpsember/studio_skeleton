@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,29 +28,27 @@ public final class Tools {
    */
   public static final boolean DEBUG_ONLY_FEATURES = true;
 
-  public static final int BYTES_PER_FLOAT = Float.SIZE / Byte.SIZE;
-
   /**
    * A do-nothing method that can be called to avoid 'unused import' warnings
    * related to this class
    */
-  public final static void doNothing() {
+  public static void doNothing() {
   }
 
   /**
    * Default value for 'db' conditional compilation, in case not provided within
    * a particular method. It is always false, so the following idiom within a
    * method will not generate code:
-   * 
+   * <p/>
    * <pre>
    * void foo() {
    *   if (db)
    *     pr(&quot;This will not print anything&quot;);
    * }
    * </pre>
-   * 
+   * <p/>
    * By contrast, this will print to the console:
-   * 
+   * <p/>
    * <pre>
    * void foo() {
    *   final boolean db = true;
@@ -60,14 +56,11 @@ public final class Tools {
    *     pr(&quot;This will print&quot;);
    * }
    * </pre>
-   * 
    */
   public static final boolean db = false;
 
   /**
    * Have current thread sleep for some number of milliseconds
-   * 
-   * @param timeInMilliseconds
    */
   public static void sleepFor(int timeInMilliseconds) {
     try {
@@ -83,10 +76,6 @@ public final class Tools {
 
   /**
    * Construct stack trace for a throwable
-   * 
-   * @param t
-   *          throwable
-   * @return String
    */
   public static String stackTrace(Throwable t) {
     return stackTrace(0, 10, t);
@@ -94,13 +83,10 @@ public final class Tools {
 
   /**
    * Construct string describing stack trace
-   * 
-   * @param skipCount
-   *          number of stack frames to skip
-   * @param displayCount
-   *          maximum # stack frames to display
-   * @param t
-   *          Throwable containing stack trace, or null to generate one
+   *
+   * @param skipCount    number of stack frames to skip
+   * @param displayCount maximum # stack frames to display
+   * @param t            Throwable containing stack trace, or null to generate one
    * @return String; iff displayCount > 1, cr's inserted after every item
    */
   public static String stackTrace(int skipCount, int displayCount, Throwable t) {
@@ -109,7 +95,6 @@ public final class Tools {
       skipCount++;
     }
     StringBuilder sb = new StringBuilder();
-    // sb.append(" {Thread" + nameOf(Thread.currentThread(), false) + "} ");
 
     StackTraceElement[] elist = t.getStackTrace();
 
@@ -137,8 +122,6 @@ public final class Tools {
 
   /**
    * Construct string describing current stack frame
-   * 
-   * @see stackTrace(int,int,Throwable)
    */
   public static String stackTrace(int skipCount, int displayCount) {
     return stackTrace(1 + skipCount, displayCount, null);
@@ -154,11 +137,9 @@ public final class Tools {
   /**
    * Simple assertion mechanism, throws a DieException if flag is false; does
    * nothing if DEBUG_ONLY_FEATURES is false
-   * 
-   * @param flag
-   *          flag to test
-   * @param message
-   *          die with this message if flag is false
+   *
+   * @param flag    flag to test
+   * @param message die with this message if flag is false
    */
   public static void ASSERT(boolean flag, String message) {
     if (DEBUG_ONLY_FEATURES) {
@@ -168,7 +149,7 @@ public final class Tools {
   }
 
   /**
-   * Same as {@link #ASSERT(boolean,String) ASSERT(boolean,String)}, but with
+   * Same as {@link #ASSERT(boolean, String) ASSERT(boolean,String)}, but with
    * generic message
    */
   public static void ASSERT(boolean flag) {
@@ -222,18 +203,16 @@ public final class Tools {
 
   /**
    * Same as {@link #unimp() unimp}, but with optional additional message
-   * 
-   * @param msg
-   *          additional message, or null
+   *
+   * @param msg additional message, or null
    */
   public static void unimp(String msg) {
     reportOnce("TODO", msg, 1);
   }
 
   private static void reportOnce(String type, String optionalMessage,
-      int stackFrameSkipCount) {
+                                 int stackFrameSkipCount) {
     String st = stackTrace(1 + stackFrameSkipCount, 1, null);
-    st = sanitizeStackTrace(st);
     StringBuilder sb = new StringBuilder();
     sb.append("*** ");
     if (type == null) {
@@ -249,7 +228,7 @@ public final class Tools {
     sb.append(")");
     String message = sb.toString();
 
-    boolean wasAdded = false;
+    boolean wasAdded;
     synchronized (sWarningStrings) {
       wasAdded = sWarningStrings.add(message);
     }
@@ -261,23 +240,20 @@ public final class Tools {
   /**
    * Print message that code is unimplemented at current line; prints a specific
    * string only once. Thread safe.
-   * 
-   * @param warningMessage
-   *          message to display with warning
+   *
+   * @param warningMessage message to display with warning
    */
   public static void warning(String warningMessage) {
     warning(warningMessage, 1);
   }
 
   /**
-   * Same as {@link #warning() warning}, but with skip count indicating how far
+   * Generate warning, but with skip count indicating how far
    * back in stack to look for the caller entry to display
-   * 
-   * @param warningMessage
-   *          message to display
-   * @param stackFrameSkipCount
-   *          number of calls on call stack to skip when looking for caller
-   *          entry
+   *
+   * @param warningMessage      message to display
+   * @param stackFrameSkipCount number of calls on call stack to skip when looking for caller
+   *                            entry
    */
   public static void warning(String warningMessage, int stackFrameSkipCount) {
     reportOnce(null, warningMessage, 1 + stackFrameSkipCount);
@@ -285,13 +261,11 @@ public final class Tools {
 
   /**
    * Convert integer to a string representing its binary equivalent
-   * 
-   * @param intValue
-   *          integer to display
-   * @param format
-   *          "D+F*" where D is decimal digit (number of significant bits), and
-   *          F is zero or more of { skip leading (z)eros; display (d)ots
-   *          instead of zeros }
+   *
+   * @param intValue integer to display
+   * @param format   "D+F*" where D is decimal digit (number of significant bits), and
+   *                 F is zero or more of { skip leading (z)eros; display (d)ots
+   *                 instead of zeros }
    */
   public static String dBits(int intValue, String format) {
 
@@ -319,11 +293,10 @@ public final class Tools {
   }
 
   /**
-   * Same as {@link #dBits(int,String) dBits(int,String)}, but with default
+   * Same as {@link #dBits(int, String) dBits(int,String)}, but with default
    * format
-   * 
-   * @param intValue
-   *          integer to display
+   *
+   * @param intValue integer to display
    */
   public static String dBits(int intValue) {
     return dBits(intValue, "8zd");
@@ -331,14 +304,13 @@ public final class Tools {
 
   /**
    * Parse an options expression which has the format "(\d+)(.*)"
-   * 
-   * @param options
-   *          string
+   *
+   * @param options string
    * @return array [value(Integer), remainder(String)] where value is (\d+), and
-   *         remainder is (.*)
+   * remainder is (.*)
    */
   public static Object[] parseOptionsString(String options) {
-    Object[] output = { null, null };
+    Object[] output = {null, null};
 
     int cursor = 0;
     while (cursor < options.length()) {
@@ -356,8 +328,6 @@ public final class Tools {
 
   /**
    * Describe a throwable, including its message and much of its stack trace
-   * 
-   * @param throwable
    */
   public static String d(Throwable throwable) {
     return throwable.getMessage() + "\n" + stackTrace(0, 15, throwable);
@@ -365,24 +335,19 @@ public final class Tools {
 
   /**
    * Describe a Boolean as either "T" or "F"
-   * 
-   * @param b
    */
   public static String d(Boolean b) {
-    return b.booleanValue() ? "T" : "F";
+    return b ? "T" : "F";
   }
 
   /**
    * Describe an integer by formatting it to a string
-   * 
-   * @param v
-   *          value
-   * @param width
-   *          max number of digits to display
-   * @param spaceLeadZeros
-   *          if true, right-justifies string
+   *
+   * @param v              value
+   * @param width          max number of digits to display
+   * @param spaceLeadZeros if true, right-justifies string
    * @return String, with format siiii where s = sign (' ' or '-'), if overflow,
-   *         returns s********* of same size
+   * returns s********* of same size
    */
   public static String d(int v, int width, boolean spaceLeadZeros) {
 
@@ -416,16 +381,13 @@ public final class Tools {
 
   /**
    * Describe a double by formatting it to a string, without scientific notation
-   * 
-   * @param v
-   *          value
-   * @param iDig
-   *          number of integer digits to display
-   * @param fDig
-   *          number of fractional digits to display
+   *
+   * @param v    value
+   * @param iDig number of integer digits to display
+   * @param fDig number of fractional digits to display
    * @return String, with format siiii.fff where s = sign (' ' or '-'), . is
-   *         present only if fDig > 0 if overflow, returns s********* of same
-   *         size
+   * present only if fDig > 0 if overflow, returns s********* of same
+   * size
    */
   public static String d(double v, int iDig, int fDig) {
 
@@ -457,7 +419,7 @@ public final class Tools {
         }
         double d2 = Math.floor(v2 * 10 / n);
         if (d2 >= 5) {
-          for (int k = dig.length - 1;; k--) {
+          for (int k = dig.length - 1; ; k--) {
             if (k < 0) {
               overflow = true;
               break;
@@ -539,8 +501,6 @@ public final class Tools {
 
   /**
    * Describe an integer as a hex value
-   * 
-   * @param intValue
    */
   public static CharSequence dh(int intValue) {
     return dh(intValue, "8$zg");
@@ -548,14 +508,11 @@ public final class Tools {
 
   /**
    * Convert an integer to its hex string representation
-   * 
-   * @param n
-   * @param format
-   *          "D+[F]*" where D is decimal digit, representing number of hex
-   *          digits to display, and F is zero or more of: skip lead (z)eros;
-   *          insert underscores to display digits in (g)roups of four; prefix
-   *          with ($)
-   * @return string
+   *
+   * @param format "D+[F]*" where D is decimal digit, representing number of hex
+   *               digits to display, and F is zero or more of: skip lead (z)eros;
+   *               insert underscores to display digits in (g)roups of four; prefix
+   *               with ($)
    */
   public static StringBuilder dh(int n, String format) {
     Object[] fmt = parseOptionsString(format);
@@ -567,11 +524,9 @@ public final class Tools {
 
   /**
    * Format a string to be at least a certain size
-   * 
-   * @param s
-   *          string to format
-   * @param length
-   *          minimum size to pad to; negative to insert leading spaces
+   *
+   * @param s      string to format
+   * @param length minimum size to pad to; negative to insert leading spaces
    * @return blank-padded string
    */
   public static String d(String s, int length) {
@@ -580,14 +535,11 @@ public final class Tools {
 
   /**
    * Format a string to be at least a certain size
-   * 
-   * @param string
-   *          string to format
-   * @param length
-   *          minimum size to padd to; negative to insert leading spaces
-   * @param sb
-   *          StringBuilder to receive formatted string, or null to construct
-   *          one
+   *
+   * @param string string to format
+   * @param length minimum size to padd to; negative to insert leading spaces
+   * @param sb     StringBuilder to receive formatted string, or null to construct
+   *               one
    * @return StringBuilder that received the string
    */
   public static StringBuilder d(String string, int length, StringBuilder sb) {
@@ -609,14 +561,11 @@ public final class Tools {
 
   /**
    * Describe a float array
-   * 
-   * @param floatArray
-   *          float array
    */
   public static String d(float[] floatArray) {
     StringBuilder sb = new StringBuilder("[");
-    for (int i = 0; i < floatArray.length; i++) {
-      sb.append(d(floatArray[i]));
+    for (float value : floatArray) {
+      sb.append(d(value));
     }
     sb.append(']');
     return sb.toString();
@@ -627,8 +576,8 @@ public final class Tools {
    */
   public static String d(double[] doubleArray) {
     StringBuilder sb = new StringBuilder("[");
-    for (int i = 0; i < doubleArray.length; i++) {
-      sb.append(d(doubleArray[i]));
+    for (double value : doubleArray) {
+      sb.append(d(value));
     }
     sb.append(']');
     return sb.toString();
@@ -639,8 +588,8 @@ public final class Tools {
    */
   public static String d(int[] intArray) {
     StringBuilder sb = new StringBuilder("[");
-    for (int i = 0; i < intArray.length; i++) {
-      sb.append(d(intArray[i]));
+    for (int value : intArray) {
+      sb.append(d(value));
     }
     sb.append(']');
     return sb.toString();
@@ -662,8 +611,6 @@ public final class Tools {
 
   /**
    * Describe an object (which may be null)
-   * 
-   * @param obj
    */
   public static String d(Object obj) {
     String s = null;
@@ -692,18 +639,15 @@ public final class Tools {
 
   /**
    * Describe a Map
-   * 
-   * @param map
-   *          Map, or null
+   *
+   * @param map Map, or null
    * @return description of map
    */
   public static String d(Map map) {
     if (map == null)
       return "null";
     StringBuilder sb = new StringBuilder("Map[\n");
-    Iterator it = map.keySet().iterator();
-    while (it.hasNext()) {
-      Object k = it.next();
+    for (Object k : map.keySet()) {
       sb.append(" ....Key '");
       sb.append(d(k.toString(), 50));
       sb.append("' -> ");
@@ -727,9 +671,7 @@ public final class Tools {
     char newlineChar = withNewlines ? '\n' : ' ';
     sb.append("[");
     sb.append(newlineChar);
-    Iterator it = c.iterator();
-    while (it.hasNext()) {
-      Object obj = it.next();
+    for (Object obj : c) {
       sb.append(chomp(obj.toString()));
       sb.append(newlineChar);
     }
@@ -752,18 +694,16 @@ public final class Tools {
 
   /**
    * Convert string to debug display
-   * 
-   * @param orig
-   *          String
-   * @param options
-   *          string with format "D+F*" where D is maximum length of string (in
-   *          decimal), and F is one or more of: { add (e)scape sequences to
-   *          display nonprintables as Java escape sequences; (p)ad string to
-   *          maximum length; surround with double (q)uotes; (t)rim length to
-   *          fit maximum length by replacing substring with '...' }
+   *
+   * @param orig    String
+   * @param options string with format "D+F*" where D is maximum length of string (in
+   *                decimal), and F is one or more of: { add (e)scape sequences to
+   *                display nonprintables as Java escape sequences; (p)ad string to
+   *                maximum length; surround with double (q)uotes; (t)rim length to
+   *                fit maximum length by replacing substring with '...' }
    * @return String in form [xxxxxx...xxx], with nonprintables converted to
-   *         unicode or escape sequences, and ... inserted if length is greater
-   *         than about the width of a line
+   * unicode or escape sequences, and ... inserted if length is greater
+   * than about the width of a line
    */
   public static String d(CharSequence orig, String options) {
     Object[] parts = parseOptionsString(options);
@@ -799,9 +739,8 @@ public final class Tools {
 
   /**
    * Convert string to debug display, using default options
-   * 
-   * @param s
-   *          String, or null
+   *
+   * @param s String, or null
    * @return String
    */
   public static String d(CharSequence s) {
@@ -811,9 +750,6 @@ public final class Tools {
   /**
    * Describe an object, which may be null, by converting it to a string and
    * appending its symbolic name
-   * 
-   * @param obj
-   * @return String description of object
    */
   public static String describe(Object obj) {
     if (obj == null)
@@ -827,17 +763,15 @@ public final class Tools {
 
   /**
    * Get the symbolic name of an object, optionally including its class name
-   * 
-   * @param obj
-   * @param includeClassName
-   * @return String name of object
    */
   public static String nameOf(Object obj, boolean includeClassName) {
     if (obj == null)
       return "<null>";
-    String identifier = "";
+    String identifier;
     if (DEBUG_ONLY_FEATURES)
       identifier = UniqueIdentifier.nameFor(obj);
+    else
+      identifier = "";
     if (!includeClassName)
       return identifier;
     String s = obj.getClass().getSimpleName() + ":" + identifier;
@@ -853,49 +787,46 @@ public final class Tools {
   /**
    * Convert a character to a printable string by inserting Java escape
    * sequences as necessary
-   * 
-   * @param c
-   * @param dest
    */
   private static void encodeCharacterAsSource(char c, StringBuilder dest) {
     switch (c) {
-    case '\n':
-      dest.append("\\n");
-      break;
-    case '\t':
-      dest.append("\\t");
-      break;
-    case '\b':
-      dest.append("\\b");
-      break;
-    case '\r':
-      dest.append("\\r");
-      break;
-    case '\f':
-      dest.append("\\f");
-      break;
-    case '\'':
-      dest.append("\\'");
-      break;
-    case '\"':
-      dest.append("\"");
-      break;
-    case '\\':
-      dest.append("\\");
-      break;
-    default:
-      if (c >= ' ' && c < (char) 0x80) {
-        dest.append(c);
-      } else {
-        dest.append("\\u");
-        toHex(dest, c, 4, false, false, false);
-      }
-      break;
+      case '\n':
+        dest.append("\\n");
+        break;
+      case '\t':
+        dest.append("\\t");
+        break;
+      case '\b':
+        dest.append("\\b");
+        break;
+      case '\r':
+        dest.append("\\r");
+        break;
+      case '\f':
+        dest.append("\\f");
+        break;
+      case '\'':
+        dest.append("\\'");
+        break;
+      case '\"':
+        dest.append("\"");
+        break;
+      case '\\':
+        dest.append("\\");
+        break;
+      default:
+        if (c >= ' ' && c < (char) 0x80) {
+          dest.append(c);
+        } else {
+          dest.append("\\u");
+          toHex(dest, c, 4, false, false, false);
+        }
+        break;
     }
   }
 
   private static void encodeStringAsJavaSource(CharSequence orig,
-      StringBuilder sb) {
+                                               StringBuilder sb) {
     for (int i = 0; i < orig.length(); i++) {
       encodeCharacterAsSource(orig.charAt(i), sb);
     }
@@ -936,12 +867,10 @@ public final class Tools {
   /**
    * Add spaces to a StringBuilder until its length is at some value. Sort of a
    * 'tab' feature, useful for aligning output.
-   * 
-   * @param sb
-   *          : StringBuilder to pad out
-   * @param len
-   *          : desired length of StringBuilder; if it is already past this
-   *          point, nothing is added to it
+   *
+   * @param sb  : StringBuilder to pad out
+   * @param len : desired length of StringBuilder; if it is already past this
+   *            point, nothing is added to it
    */
   public static StringBuilder tab(StringBuilder sb, int len) {
     sb.append(spaces(len - sb.length()));
@@ -950,8 +879,6 @@ public final class Tools {
 
   /**
    * Print an object to System.out, with a newline
-   * 
-   * @param obj
    */
   public static void pr(Object obj) {
     System.out.println(obj);
@@ -959,8 +886,6 @@ public final class Tools {
 
   /**
    * Print an object to System.out, without a newline
-   * 
-   * @param obj
    */
   public static void prr(Object obj) {
     System.out.print(obj);
@@ -968,9 +893,8 @@ public final class Tools {
 
   /**
    * Trim trailing linefeeds from string
-   * 
-   * @param s
-   *          input
+   *
+   * @param s input
    * @return trimmed string
    */
   public static String chomp(String s) {
@@ -983,17 +907,14 @@ public final class Tools {
 
   /**
    * Convert value to hex, store in StringBuilder
-   * 
-   * @param sb
-   *          where to store result, or null
-   * @param value
-   *          value to convert
-   * @param digits
-   *          number of hex digits to output
+   *
+   * @param sb     where to store result, or null
+   * @param value  value to convert
+   * @param digits number of hex digits to output
    * @return result
    */
   public static StringBuilder toHex(StringBuilder sb, int value, int digits,
-      boolean stripLeadingZeros, boolean groupsOfFour, boolean withDollarSign) {
+                                    boolean stripLeadingZeros, boolean groupsOfFour, boolean withDollarSign) {
     if (sb == null)
       sb = new StringBuilder();
     if (withDollarSign)
@@ -1001,12 +922,9 @@ public final class Tools {
 
     boolean nonZeroSeen = !stripLeadingZeros;
 
-    long workValue = value;
-
-    int shift = (digits - 1) << 2;
     while (digits-- > 0) {
-      shift = digits << 2;
-      int v = (int) ((workValue >> shift)) & 0xf;
+      int shift = digits << 2;
+      int v = (value >> shift) & 0xf;
       if (v != 0 || digits == 0)
         nonZeroSeen = true;
 
@@ -1033,33 +951,6 @@ public final class Tools {
   }
 
   /**
-   * Optionally replace literal line numbers that appear in warnings (and
-   * 'unimp' messages) with constant placeholders ('xxx') so that old snapshots
-   * remain valid even if the line numbers have changed.
-   */
-  public static void setSanitizeLineNumbers(boolean f) {
-    sSanitizeLineNumbersFlag = f;
-  }
-
-  /**
-   * Replace all line numbers within a stack trace with "xxx" so they are
-   * ignored within snapshots; has no effect if sanitize is not active
-   * 
-   * @param s
-   *          string containing stack trace
-   * @return possibly modified stack trace
-   */
-  private static String sanitizeStackTrace(String s) {
-    if (sSanitizeLineNumbersFlag) {
-      if (sLineNumbersPattern == null)
-        sLineNumbersPattern = Pattern.compile(":(\\d+)($|\\n)");
-      Matcher m = sLineNumbersPattern.matcher(s);
-      s = m.replaceAll("_XXX");
-    }
-    return s;
-  }
-
-  /**
    * Generate a time stamp to the console, indicating how much time has elapsed
    * since the last such time stamp was requested
    */
@@ -1069,9 +960,8 @@ public final class Tools {
 
   /**
    * Same as {@link #timeStamp() timeStamp}, but with optional message
-   * 
-   * @param message
-   *          object to derive message from (via toString()), or null
+   *
+   * @param message object to derive message from (via toString()), or null
    */
   public static void timeStamp(Object message) {
     timeStamp(message, 1);
@@ -1080,11 +970,9 @@ public final class Tools {
   /**
    * Same as {@link #timeStamp(Object) timeStamp}, but with stack frame skip
    * count
-   * 
-   * @param message
-   *          object to derive message from (via toString()), or null
-   * @param stackFrameSkipCount
-   *          depth of desired entry with stack frame
+   *
+   * @param message             object to derive message from (via toString()), or null
+   * @param stackFrameSkipCount depth of desired entry with stack frame
    */
   private static void timeStamp(Object message, int stackFrameSkipCount) {
     long newTime = System.currentTimeMillis();
@@ -1153,10 +1041,8 @@ public final class Tools {
 
   /**
    * Remove an item from a list, and fill gap with last element
-   * 
-   * @param list
-   * @param index
-   *          index of item to remove
+   *
+   * @param index index of item to remove
    * @return the removed item
    */
   public static <T> T removeAndFill(List<T> list, int index) {
@@ -1169,7 +1055,7 @@ public final class Tools {
     return element;
   }
 
-  public static void swap(List list, int aIndex, int bIndex) {
+  public static void swap(List<Object> list, int aIndex, int bIndex) {
     if (aIndex == bIndex)
       return;
     Object temp = list.get(aIndex);
@@ -1196,6 +1082,7 @@ public final class Tools {
           Class.forName("com.js.testUtils.MyTest");
           sTesting = true;
         } catch (Throwable e) {
+          doNothing();
         }
       }
       sTestingKnown = true;
@@ -1207,7 +1094,7 @@ public final class Tools {
     int[] ret = new int[list.size()];
     Iterator<Integer> iterator = list.iterator();
     for (int i = 0; i < ret.length; i++) {
-      ret[i] = iterator.next().intValue();
+      ret[i] = iterator.next();
     }
     return ret;
   }
@@ -1248,7 +1135,7 @@ public final class Tools {
       out = orig;
     else
       out = (T) orig.getMutableCopy();
-    return (T) out;
+    return out;
   }
 
   /**
@@ -1259,11 +1146,9 @@ public final class Tools {
     return obj;
   }
 
-  private static boolean sSanitizeLineNumbersFlag;
-  private static Pattern sLineNumbersPattern;
   private static long sTimeStampPreviousTime;
   private static long sTimeStampBaseTime;
-  private static final Set sWarningStrings = new HashSet();
+  private static final Set<String> sWarningStrings = new HashSet();
   private static boolean sTestingKnown;
   private static boolean sTesting;
   private static boolean sAndroidKnown;
