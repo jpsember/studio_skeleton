@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import static com.js.basic.Tools.*;
 
 public abstract class MyActivity extends Activity {
