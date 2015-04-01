@@ -1,18 +1,20 @@
 package com.js.basic;
 
-import junit.framework.TestCase;
+import com.js.testUtils.MyTestCase;
+import static com.js.basic.Tools.*;
+import com.js.testUtils.IOSnapshot;
 
-public class PointTest extends TestCase {
+public class PointTest extends MyTestCase {
 
     public void testMagnitude() {
         Point pt = new Point(3,4);
-        assertEquals(pt.magnitude(),5.0f);
+        assertEqualsFloat(5,pt.magnitude());
     }
 
-    public void testMagnitudeFails() {
+    public void testWithSnapshot() {
+        IOSnapshot.open();
         Point pt = new Point(3,4);
-        assertEquals(pt.magnitude(),7.0f);
+        pr("Point: "+pt);
+        IOSnapshot.close();
     }
-
-
 }
