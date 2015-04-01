@@ -45,13 +45,13 @@ class App
     msg("Instrumentation:\n"+output)
   end
 
-  def build
-    msg("Building...")
+  def stopExistingApp
+    msg("Stopping app...")
     scall("adb shell am force-stop #{@package}")
   end
 
   def install
-    msg("Installing...")
+    msg("Building and installing...")
     scall("gradle installDebug")
   end
 
@@ -75,17 +75,18 @@ class App
       opt :clean, "clean"
       opt :verbose, "verbose"
       opt :testonly, "test only"
+      opt :runonly, "run only"
     end
 
     @verbose = options[:verbose]
 
     clean() if options[:clean]
-    build()
+    stopExistingApp()
     install()
-    runUnitTests()
+    runUnitTests() if !options[:runonly]
     listInstrumentation() if options[:clean]
-    installTests()
-    runAndroidTests()
+    installTests() if !options[:runonly]
+    runAndroidTests() if !options[:runonly]
     runApp() if !options[:testonly]
   end
 
