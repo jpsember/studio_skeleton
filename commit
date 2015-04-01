@@ -210,7 +210,7 @@ class App
   def run_unit_tests
     options = " -t"
     options = options + " -c" if @options[:clean]
-    output,_ = runcmd("go.rb#{options}","Running unit tests")
+    output,_ = runcmd("runtests.rb#{options}","Running unit tests")
   end
 
   def runcmd(cmd,message=nil)
