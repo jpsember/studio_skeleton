@@ -69,9 +69,17 @@ class App
       elsif @options[:omit_tests]
         perform_commit_if_nec
       else
-        # To do: have user edit the commit message while running the tests
-        run_unit_tests
-        perform_commit_if_nec
+        puts "Starting unit tests in separate thread..." if @verbose
+        thread = Thread.new do
+          run_unit_tests
+        end
+        message = nil
+        if commit_is_necessary
+          message = edit_commit_message
+        end
+        puts "Waiting for unit tests to complete..." if @verbose
+        thread.join
+        perform_commit_with_message(message) if commit_is_necessary
       end
 
     rescue ProgramException => e
@@ -164,9 +172,13 @@ class App
     !current_git_state().empty?
   end
 
+
   def perform_commit_if_nec
     return if !commit_is_necessary
-    m = edit_commit_message
+    perform_commit_with_message(edit_commit_message)
+  end
+
+  def perform_commit_with_message(m)
     raise(ProgramException,"Commit message empty") if !m
 
     stripped = strip_comments_from_string(m)

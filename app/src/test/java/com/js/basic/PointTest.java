@@ -1,7 +1,6 @@
 package com.js.basic;
 
 import com.js.testUtils.MyTestCase;
-import static com.js.basic.Tools.*;
 
 public class PointTest extends MyTestCase {
 
@@ -10,4 +9,9 @@ public class PointTest extends MyTestCase {
         assertEqualsFloat(5,pt.magnitude());
     }
 
- }
+//    public void testSampleFailure() {
+//        Point pt = new Point(3,4);
+//        assertEqualsFloat(5.8f,pt.magnitude());
+//    }
+
+}
