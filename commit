@@ -61,17 +61,13 @@ class App
 
       passed_tests = false
       perform_tests = false
-      examine_git_state = !@options[:testonly]
-      if examine_git_state
+      if !@options[:testonly]
+        read_old_git_state
+        determine_current_git_state
 
-        if !@options[:testonly]
-          read_old_git_state
-          determine_current_git_state
-
-          if @current_git_state != @previous_git_state
-            puts "...states differ, running unit tests" if @verbose
-            perform_tests = true
-          end
+        if @current_git_state != @previous_git_state
+          puts "...states differ, running unit tests" if @verbose
+          perform_tests = true
         end
       end
 
@@ -80,7 +76,7 @@ class App
 
       if perform_tests
         run_unit_tests
-        if examine_git_state
+        if !@options[:testonly]
           update_old_git_state
         end
       end
