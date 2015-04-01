@@ -1,13 +1,8 @@
 package com.js.askeleton;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.test.InstrumentationTestCase;
 
-public class ApplicationTest extends ApplicationTestCase<Application> {
-
-    public ApplicationTest() {
-        super(Application.class);
-    }
+public class ApplicationTest extends InstrumentationTestCase {
 
     // All unit tests are methods starting with prefix 'test'
 
@@ -17,10 +12,10 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertEquals(a, b);
     }
 
-    public void willNotExecuteTestFailure() {
-        final int a = 2;
-        final int b = 3;
-        assertEquals(a, b);
-    }
+//    public void testExampleFails() {
+//        final int a = 2;
+//        final int b = 3;
+//        assertEquals(a, b);
+//    }
 
 }
