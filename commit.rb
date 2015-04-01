@@ -25,6 +25,10 @@ class App
   #
   COMMIT_MESSAGE_FILENAME = "#{COMMIT_CACHE_DIR}/editor_message.txt"
 
+  # The commit message, after all comments are stripped; this is what is actually committed
+  #
+  COMMIT_MESSAGE_STRIPPED_FILENAME = "#{COMMIT_CACHE_DIR}/editor_message_stripped.txt"
+
   PREVIOUS_COMMIT_MESSAGE_FILENAME = "#{COMMIT_CACHE_DIR}/previous_editor_message.txt"
 
   COMMIT_MESSAGE_TEMPLATE_1=<<-EOS.strip_heredoc
@@ -143,8 +147,7 @@ class App
 
   def previous_commit_message
     return nil if !File.exist?(PREVIOUS_COMMIT_MESSAGE_FILENAME)
-    s = FileUtils.read_text_file(PREVIOUS_COMMIT_MESSAGE_FILENAME,"")
-    strip_comments_from_string(s)
+    FileUtils.read_text_file(PREVIOUS_COMMIT_MESSAGE_FILENAME,"")
   end
 
   def edit_commit_message
@@ -163,9 +166,6 @@ class App
     TextEditor.new(COMMIT_MESSAGE_FILENAME).edit
 
     message = FileUtils.read_text_file(COMMIT_MESSAGE_FILENAME)
-    stripped = strip_comments_from_string(message)
-    return nil if stripped.empty?
-    message
   end
 
   def commit_is_necessary
@@ -178,20 +178,25 @@ class App
     perform_commit_with_message(edit_commit_message)
   end
 
-  def perform_commit_with_message(m)
-    raise(ProgramException,"Commit message empty") if !m
+  def perform_commit_with_message(message)
+    stripped = nil
+    if message
+        stripped = strip_comments_from_string(message)
+    end
 
-    stripped = strip_comments_from_string(m)
+    raise(ProgramException,"Commit message empty") if !stripped
     if !(stripped =~ /#\d+/)
       raise(ProgramException,"No issue numbers found in commit message")
     end
+    FileUtils.write_text_file(COMMIT_MESSAGE_STRIPPED_FILENAME,stripped)
 
-    if system("git commit -a --file=#{COMMIT_MESSAGE_FILENAME}")
+    if system("git commit -a --file=#{COMMIT_MESSAGE_STRIPPED_FILENAME}")
       # Dispose of the commit message, since it has made its way into a successful commit
       remove(COMMIT_MESSAGE_FILENAME)
+      remove(COMMIT_MESSAGE_STRIPPED_FILENAME)
       # Throw out previous tested state, since commit has occurred
       remove(GIT_STATE_TESTED_FILENAME)
-      FileUtils.write_text_file(PREVIOUS_COMMIT_MESSAGE_FILENAME,m)
+      FileUtils.write_text_file(PREVIOUS_COMMIT_MESSAGE_FILENAME,stripped)
     else
       raise(ProgramException,"Git commit failed; error #{$?}")
     end
