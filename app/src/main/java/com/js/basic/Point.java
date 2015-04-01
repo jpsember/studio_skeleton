@@ -51,7 +51,7 @@ public class Point {
 	}
 
 	public final float magnitude() {
-		return (x * x) + (y * y);
+		return (float)Math.sqrt((x * x) + (y * y));
 	}
 
 	public final void add(Point point) {
