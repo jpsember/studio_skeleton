@@ -849,17 +849,6 @@ public final class Tools {
     return sb;
   }
 
-  public static boolean isAndroid() {
-    if (!sAndroidKnown) {
-      synchronized (Tools.class) {
-        sIsAndroid = System.getProperties().getProperty("java.vendor", "other")
-            .equals("The Android Project");
-        sAndroidKnown = true;
-      }
-    }
-    return sIsAndroid;
-  }
-
   public static boolean alwaysFalse() {
     return false;
   }
@@ -1076,16 +1065,13 @@ public final class Tools {
    * Determine if program is running unit tests. Thread safe.
    */
   public static boolean testing() {
-    if (!sTestingKnown) {
-      synchronized (Tools.class) {
-        try {
-          Class.forName("com.js.testUtils.MyTest");
-          sTesting = true;
-        } catch (Throwable e) {
-          doNothing();
-        }
+    if (sTesting == null) {
+      try {
+        Class.forName("com.js.testUtils.MyTest");
+        sTesting = true;
+      } catch (Throwable e) {
+        sTesting = false;
       }
-      sTestingKnown = true;
     }
     return sTesting;
   }
@@ -1148,10 +1134,6 @@ public final class Tools {
 
   private static long sTimeStampPreviousTime;
   private static long sTimeStampBaseTime;
-  private static final Set<String> sWarningStrings = new HashSet();
-  private static boolean sTestingKnown;
-  private static boolean sTesting;
-  private static boolean sAndroidKnown;
-  private static boolean sIsAndroid;
-
+  private static Set<String> sWarningStrings = new HashSet();
+  private volatile static Boolean sTesting;
 }
