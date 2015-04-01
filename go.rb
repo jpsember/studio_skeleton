@@ -27,7 +27,7 @@ class App
   end
 
   def runAndroidTests
-    msg("Testing...")
+    msg("Running Android tests...")
     output,_ = scall("adb shell am instrument -w -e class #{@package}/ApplicationTest #{@package}.test/android.test.InstrumentationTestRunner")
     msg(output)
 
@@ -56,13 +56,18 @@ class App
   end
 
   def installTests
-    msg("Installing tests...")
+    msg("Installing Android tests...")
     scall("gradle installDebugAndroidTest")
   end
 
   def runApp
     msg("Running...")
     scall("adb shell am start -n #{@package}/.SkeletonActivity")
+  end
+
+  def runUnitTests
+    msg("Running Java unit tests...")
+    scall("gradle test")
   end
 
   def run(args = ARGV)
@@ -77,6 +82,7 @@ class App
     clean() if options[:clean]
     build()
     install()
+    runUnitTests()
     listInstrumentation() if options[:clean]
     installTests()
     runAndroidTests()
