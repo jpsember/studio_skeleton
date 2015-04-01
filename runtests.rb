@@ -75,6 +75,8 @@ class App
       opt :clean, "clean"
       opt :verbose, "verbose"
       opt :testonly, "test only"
+      opt :omit_android, "omit Android tests", :short => 'a'
+      opt :omit_java, "omit 'plain old' Java unit tests", :short => 'j'
       opt :runonly, "run only"
     end
 
@@ -83,10 +85,12 @@ class App
     clean() if options[:clean]
     stopExistingApp()
     install()
-    runUnitTests() if !options[:runonly]
+    runUnitTests() if !options[:runonly] && !options[:omit_java]
     listInstrumentation() if options[:clean]
-    installTests() if !options[:runonly]
-    runAndroidTests() if !options[:runonly]
+    if !options[:omit_android] && !options[:runonly]
+      installTests()
+      runAndroidTests()
+    end
     runApp() if !options[:testonly]
   end
 

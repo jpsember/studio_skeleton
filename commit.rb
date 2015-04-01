@@ -211,6 +211,8 @@ class App
       opt :detail, "display lots of detail"
       opt :verbose, "display progress"
       opt :omit_tests,"omit tests"
+      opt :omit_android, "omit Android tests", :short => 'a'
+      opt :omit_java, "omit 'plain old' Java unit tests", :short => 'j'
       opt :testonly,"perform unit tests only, without generating commit"
     end
 
@@ -233,6 +235,9 @@ class App
 
     options = " -t"
     options = options + " -c" if @options[:clean]
+    options = options + " -a" if @options[:omit_android]
+    options = options + " -j" if @options[:omit_java]
+
     output,_ = runcmd("runtests.rb#{options}","Running unit tests")
 
     # Write the current git state to the cache, to indicate we've tested it
