@@ -14,10 +14,18 @@ end
 
 class App
 
-  GIT_STATE_FILENAME = ".commit_state"
-  GIT_MESSAGE_FILENAME = ".commit_git_message"
-  COMMIT_MESSAGE_FILENAME = ".commit_editor_message"
-  PREVIOUS_COMMIT_MESSAGE_FILENAME = ".commit_previous_editor_message"
+  COMMIT_CACHE_DIR = ".commit_cache"
+  #
+  # The git state representing the last successfully tested project is written here
+  #
+  GIT_STATE_TESTED_FILENAME = "#{COMMIT_CACHE_DIR}/state.txt"
+
+  # The commit message to be used for the next commit, it is edited by the user,
+  # stored in this file, and deleted when commit succeeds
+  #
+  COMMIT_MESSAGE_FILENAME = "#{COMMIT_CACHE_DIR}/editor_message.txt"
+
+  PREVIOUS_COMMIT_MESSAGE_FILENAME = "#{COMMIT_CACHE_DIR}/previous_editor_message.txt"
 
   COMMIT_MESSAGE_TEMPLATE_1=<<-EOS.strip_heredoc
   Issue #
@@ -45,45 +53,25 @@ class App
   # --------------------------------------------------------------------------
   EOS
 
-  def initialize
-    @options = nil
-  end
-
   def run(argv)
 
     @options = parse_arguments(argv)
     @detail = @options[:detail]
     @verbose = @options[:verbose] || @detail
     @current_git_state = nil
-    @previous_git_state = nil
+    @last_tested_git_state = nil
 
     begin
+      prepare_cache_dir(@options[:clean])
 
-      passed_tests = false
-      perform_tests = false
-      if !@options[:testonly]
-        read_old_git_state
-        determine_current_git_state
-
-        if @current_git_state != @previous_git_state
-          puts "...states differ, running unit tests" if @verbose
-          perform_tests = true
-        end
-      end
-
-      perform_tests ||= @options[:testonly]
-      perform_tests &&= !@options[:omit_tests]
-
-      if perform_tests
+      if @options[:testonly] || !commit_is_necessary
         run_unit_tests
-        if !@options[:testonly]
-          update_old_git_state
-        end
-      end
-      passed_tests = true
-
-      if !@options[:testonly] && commit_required
-        perform_commit
+      elsif @options[:omit_tests]
+        perform_commit_if_nec
+      else
+        # To do: have user edit the commit message while running the tests
+        run_unit_tests
+        perform_commit_if_nec
       end
 
     rescue ProgramException => e
@@ -92,37 +80,47 @@ class App
     end
   end
 
-  def commit_required
-    return !(@current_git_state.empty?)
-  end
-
-  def read_old_git_state
-    if @options[:clean]
-      remove(GIT_STATE_FILENAME)
+  def prepare_cache_dir(clean = false)
+    if !File.directory?(COMMIT_CACHE_DIR)
+      Dir.mkdir(COMMIT_CACHE_DIR)
     end
-    @previous_git_state = FileUtils.read_text_file(GIT_STATE_FILENAME,"")
-  end
-
-  def determine_current_git_state
-
-    # Use full diff to determine if previous results are still valid
-    current_diff_state,_ = scall("git diff -p")
-
-    # Use brief status to test for untracked files and to report to user
-    state,_= scall("git status -s")
-
-    @current_git_state = state + "\n" + current_diff_state
-
-    if state.include?('??')
-      state,_ = scall("git status")
-      raise ProgramException,"Unexpected repository state:\n#{state}"
+    if clean
+      remove(GIT_STATE_TESTED_FILENAME)
+      remove(PREVIOUS_COMMIT_MESSAGE_FILENAME)
     end
   end
 
-  def update_old_git_state
-    FileUtils.write_text_file(GIT_STATE_FILENAME,@current_git_state)
+  def last_tested_git_state
+    if @last_tested_git_state.nil?
+      @last_tested_git_state = FileUtils.read_text_file(GIT_STATE_TESTED_FILENAME,"")
+      puts "---- Read old git state from file:\n#{@last_tested_git_state}\n" if @verbose
+    end
+    @last_tested_git_state
   end
 
+  # Construct string representing git state; lazy initialized
+  #
+  def current_git_state
+    if @current_git_state.nil?
+
+      # Use full diff to determine if previous results are still valid
+      current_diff_state,_ = scall("git diff -p")
+
+      # Use brief status to test for untracked files and to report to user
+      state,_= scall("git status -s")
+
+      if state.include?('??')
+        state,_ = scall("git status")
+        raise ProgramException,"Unexpected repository state:\n#{state}"
+      end
+      @current_git_state = ""
+      if !state.empty? || !current_diff_state.empty?
+        @current_git_state = state + "\n" + current_diff_state + "\n"
+      end
+      puts "---- Determined current git state: #{@current_git_state}" if @verbose
+    end
+    @current_git_state
+  end
 
   def strip_comments_from_string(m)
     m = m.strip
@@ -156,31 +154,32 @@ class App
 
     TextEditor.new(COMMIT_MESSAGE_FILENAME).edit
 
-    m = FileUtils.read_text_file(COMMIT_MESSAGE_FILENAME)
-    m = strip_comments_from_string(m)
-    return nil if m.empty?
-    m
+    message = FileUtils.read_text_file(COMMIT_MESSAGE_FILENAME)
+    stripped = strip_comments_from_string(message)
+    return nil if stripped.empty?
+    message
   end
 
+  def commit_is_necessary
+    !current_git_state().empty?
+  end
 
-  def perform_commit
+  def perform_commit_if_nec
+    return if !commit_is_necessary
     m = edit_commit_message
     raise(ProgramException,"Commit message empty") if !m
 
-    if !(m =~ /#\d+/)
+    stripped = strip_comments_from_string(m)
+    if !(stripped =~ /#\d+/)
       raise(ProgramException,"No issue numbers found in commit message")
     end
 
-    FileUtils.write_text_file(GIT_MESSAGE_FILENAME,m)
-
-    if system("git commit -a --file=#{GIT_MESSAGE_FILENAME}")
+    if system("git commit -a --file=#{COMMIT_MESSAGE_FILENAME}")
+      # Dispose of the commit message, since it has made its way into a successful commit
       remove(COMMIT_MESSAGE_FILENAME)
-      remove(GIT_MESSAGE_FILENAME)
-      remove(GIT_STATE_FILENAME)
-
-      bare_message = strip_comments_from_string(m)
-      FileUtils.write_text_file(PREVIOUS_COMMIT_MESSAGE_FILENAME,bare_message)
-
+      # Throw out previous tested state, since commit has occurred
+      remove(GIT_STATE_TESTED_FILENAME)
+      FileUtils.write_text_file(PREVIOUS_COMMIT_MESSAGE_FILENAME,m)
     else
       raise(ProgramException,"Git commit failed; error #{$?}")
     end
@@ -203,10 +202,24 @@ class App
     end
   end
 
+  # Run the unit tests, if we haven't already successfully run them
+  # for this repository state (and user isn't explicitly omitting them)
+  #
   def run_unit_tests
+    return if @options[:omit_tests]
+
+    if current_git_state == last_tested_git_state
+      return
+    end
+
+    puts "...this project state has not been tested, running unit tests" if @verbose
+
     options = " -t"
     options = options + " -c" if @options[:clean]
     output,_ = runcmd("runtests.rb#{options}","Running unit tests")
+
+    # Write the current git state to the cache, to indicate we've tested it
+    FileUtils.write_text_file(GIT_STATE_TESTED_FILENAME,@current_git_state)
   end
 
   def runcmd(cmd,message=nil)
@@ -233,10 +246,6 @@ class App
 
   def remove(file)
     FileUtils.rm(file) if File.exist?(file)
-  end
-
-  def remove_dir(dir)
-    FileUtils.rm_rf(dir) if File.directory?(dir)
   end
 
 end
