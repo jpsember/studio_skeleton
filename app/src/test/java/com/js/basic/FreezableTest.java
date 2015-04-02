@@ -9,6 +9,7 @@ import static com.js.basic.Tools.*;
 
 public class FreezableTest extends MyTestCase {
 
+  // Set this true for diagnostic information printed during tests
   private static final boolean VERBOSE = false;
 
   public void testBuiltObjectInitiallyMutable() {
@@ -85,8 +86,11 @@ public class FreezableTest extends MyTestCase {
     return mLiveThreadCount;
   }
 
+  private enum EvalType {SYNCHRONIZED, NONSYNCHRONIZED}
+
   private class AlphaEvaluator implements Runnable {
-    public AlphaEvaluator(Alpha alpha, int type) {
+
+    public AlphaEvaluator(Alpha alpha, EvalType type) {
       mAlpha = alpha;
       mType = type;
     }
@@ -98,16 +102,20 @@ public class FreezableTest extends MyTestCase {
         Thread.yield();
 
       sleep();
-      if (mType == 0)
-        mAlpha.getFirstName(this);
-      else
-        mAlpha.getSecondName(this);
+      switch (mType) {
+        case SYNCHRONIZED:
+          mAlpha.getFirstName(this);
+          break;
+        case NONSYNCHRONIZED:
+          mAlpha.getSecondName(this);
+          break;
+      }
 
       adjustLiveThreadCount(-1);
     }
 
     private Alpha mAlpha;
-    private int mType;
+    private EvalType mType;
   }
 
   /**
@@ -123,9 +131,15 @@ public class FreezableTest extends MyTestCase {
    * deterministic, this may violate the object's immutability (since different threads
    * may end up with different values for this field!).  For this reason, maybe the second
    * method variant should be avoided.
+   * <p/>
+   * The field holding the lazy-evaluated value must be marked volatile.  This prevents the
+   * possibility that its value is cached by one thread, and hence fails to see its value being
+   * changed by some other thread.  It also ensures that reads and writes to the value are
+   * atomic (this is always the case for reference types, or primitive types other than
+   * long or double).
    */
 
-  private void performLazyEvaluationOfType(int type) {
+  private void performLazyEvaluationOfType(EvalType type) {
     // Construct a single frozen object
     Alpha a = alpha();
     a.setValue(76);
@@ -151,13 +165,13 @@ public class FreezableTest extends MyTestCase {
   }
 
   public void testLazyEvaluationWithSynchronization() {
-    performLazyEvaluationOfType(0);
+    performLazyEvaluationOfType(EvalType.SYNCHRONIZED);
     // Verify that we didn't perform more than a single evaluation
     assertEquals(1, mLazyEvaluations);
   }
 
   public void testLazyEvaluationWithoutSynchronization() {
-    performLazyEvaluationOfType(1);
+    performLazyEvaluationOfType(EvalType.NONSYNCHRONIZED);
     // Verify that we performed more than a single evaluation
     // (note: this may fail, since we're assuming threads will cause a race condition which
     // is not actually guaranteed, we've just encouraged them to do so by adding sleep calls)
@@ -273,6 +287,5 @@ public class FreezableTest extends MyTestCase {
     private volatile String mFirstName;
     private volatile String mSecondName;
   }
-
 
 }
