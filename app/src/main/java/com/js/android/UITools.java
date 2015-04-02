@@ -11,7 +11,7 @@ import static com.js.basic.Tools.*;
 
 public final class UITools {
 
-  public static final boolean SET_DEBUG_COLORS = false && DEBUG_ONLY_FEATURES;
+  public static final boolean SET_DEBUG_COLORS = false;
 
   private static int debugColors[] = {
       //

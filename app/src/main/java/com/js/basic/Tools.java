@@ -24,11 +24,6 @@ public final class Tools {
   }
 
   /**
-   * Generate code that should be 'debug only', i.e., preproduction?
-   */
-  public static final boolean DEBUG_ONLY_FEATURES = true;
-
-  /**
    * A do-nothing method that can be called to avoid 'unused import' warnings
    * related to this class
    */
@@ -135,17 +130,14 @@ public final class Tools {
   }
 
   /**
-   * Simple assertion mechanism, throws a DieException if flag is false; does
-   * nothing if DEBUG_ONLY_FEATURES is false
+   * Simple assertion mechanism, throws a DieException if flag is false
    *
    * @param flag    flag to test
    * @param message die with this message if flag is false
    */
   public static void ASSERT(boolean flag, String message) {
-    if (DEBUG_ONLY_FEATURES) {
-      if (!flag)
-        die("ASSERTION FAILED (" + message + ")");
-    }
+    if (!flag)
+      die("ASSERTION FAILED (" + message + ")");
   }
 
   /**
@@ -153,10 +145,8 @@ public final class Tools {
    * generic message
    */
   public static void ASSERT(boolean flag) {
-    if (DEBUG_ONLY_FEATURES) {
-      if (!flag) {
-        die("ASSERTION FAILED");
-      }
+    if (!flag) {
+      die("ASSERTION FAILED");
     }
   }
 
@@ -767,11 +757,7 @@ public final class Tools {
   public static String nameOf(Object obj, boolean includeClassName) {
     if (obj == null)
       return "<null>";
-    String identifier;
-    if (DEBUG_ONLY_FEATURES)
-      identifier = UniqueIdentifier.nameFor(obj);
-    else
-      identifier = "";
+    String identifier = "";
     if (!includeClassName)
       return identifier;
     String s = obj.getClass().getSimpleName() + ":" + identifier;
