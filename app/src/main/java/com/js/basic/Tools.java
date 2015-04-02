@@ -757,7 +757,7 @@ public final class Tools {
   public static String nameOf(Object obj, boolean includeClassName) {
     if (obj == null)
       return "<null>";
-    String identifier = "";
+    String identifier = UniqueIdentifier.nameFor(obj);
     if (!includeClassName)
       return identifier;
     String s = obj.getClass().getSimpleName() + ":" + identifier;
