@@ -1137,6 +1137,6 @@ public final class Tools {
 
   private static long sTimeStampPreviousTime;
   private static long sTimeStampBaseTime;
-  private static Set<String> sWarningStrings = new HashSet();
+  private static final Set<String> sWarningStrings = new HashSet();
   private volatile static Boolean sTesting;
 }

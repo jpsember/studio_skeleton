@@ -28,12 +28,9 @@ public class JSONTools {
 
   /**
    * Get keys from JSONObject as an Iterable<String>
-   * 
-   * @param object
-   * @return
    */
   public static Iterable<String> keys(JSONObject object) {
-    return toList((Iterator<String>) object.keys());
+    return toList(object.keys());
   }
 
   /**
@@ -54,12 +51,8 @@ public class JSONTools {
   }
 
   /**
-   * Store a float within a JSON array as an integer, preserving 3 decimal
+   * Store a float within a JSON array as a (long) integer, preserving 3 decimal
    * places
-   * 
-   * @param array
-   * @param floatValue
-   * @throws JSONException
    */
   public static void put(JSONArray array, float floatValue)
       throws JSONException {
@@ -67,6 +60,9 @@ public class JSONTools {
     array.put(intValue);
   }
 
+  /**
+   * Retrieve float from JSON array stored via put()
+   */
   public static float getFloat(JSONArray array, int cursor)
       throws JSONException {
     long intValue = array.getLong(cursor);

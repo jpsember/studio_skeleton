@@ -27,26 +27,17 @@ public final class IPoint {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(d(x));
-    sb.append(' ');
-    sb.append(d(y));
-    return sb.toString();
+    return d(x) + " " + d(y);
   }
 
   public String dumpUnlabelled() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(d(x));
-    sb.append(' ');
-    sb.append(d(y));
-    sb.append(' ');
-    return sb.toString();
+    return d(x) + " " + d(y) + " ";
   }
 
   public Point toPoint() {
     return new Point(x, y);
   }
-  
+
   public int x;
   public int y;
 }

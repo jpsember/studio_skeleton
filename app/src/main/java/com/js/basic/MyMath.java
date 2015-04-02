@@ -24,8 +24,6 @@ public final class MyMath {
 
   /**
    * Test if a value is essentially zero, and raise exception if so
-   * 
-   * @param value
    */
   public static void testForZero(float value) {
     testForZero(value, 1e-8f);
@@ -33,9 +31,6 @@ public final class MyMath {
 
   /**
    * Test if a value is essentially zero, and raise exception if so
-   * 
-   * @param value
-   * @param epsilon
    */
   public static void testForZero(float value, float epsilon) {
     if (Math.abs(value) <= epsilon) {
@@ -46,8 +41,6 @@ public final class MyMath {
 
   /**
    * Raise exception if value's magnitude exceeds MAXVALUE
-   * 
-   * @param value
    */
   public static void testForOverflow(float value) {
     if (value > MyMath.MAXVALUE || value < -MyMath.MAXVALUE
@@ -82,11 +75,9 @@ public final class MyMath {
 
   /**
    * Snap a scalar to a grid
-   * 
-   * @param n
-   *          scalaar
-   * @param size
-   *          size of grid cells (assumed to be square)
+   *
+   * @param n    scalaar
+   * @param size size of grid cells (assumed to be square)
    * @return point snapped to nearest cell corner
    */
   public static float snapToGrid(float n, float size) {
@@ -94,7 +85,7 @@ public final class MyMath {
   }
 
   public static float interpolateBetweenScalars(float v1, float v2,
-      float parameter) {
+                                                float parameter) {
     return (v1 * (1 - parameter)) + v2 * parameter;
   }
 
@@ -107,7 +98,7 @@ public final class MyMath {
   }
 
   public static float interpolateBetweenAngles(float a1, float a2,
-      float parameter) {
+                                               float parameter) {
     float aDiff = normalizeAngle(a2 - a1) * parameter;
     return normalizeAngle(a1 + aDiff);
   }
@@ -166,9 +157,7 @@ public final class MyMath {
 
   /**
    * Subtract second point from first
-   * 
-   * @param a
-   * @param b
+   *
    * @return a - b
    */
   public static Point subtract(Point a, Point b) {
@@ -208,20 +197,16 @@ public final class MyMath {
 
   /**
    * Determine distance of a point from a line
-   * 
-   * @param pt
-   *          FPoint2
-   * @param e0
-   *          one point on line
-   * @param e1
-   *          second point on line
-   * @param closestPt
-   *          if not null, closest point on line is stored here; can be the same
-   *          as one of the input points
+   *
+   * @param pt        FPoint2
+   * @param e0        one point on line
+   * @param e1        second point on line
+   * @param closestPt if not null, closest point on line is stored here; can be the same
+   *                  as one of the input points
    * @return distance
    */
   public static float ptDistanceToLine(Point pt, Point e0, Point e1,
-      Point closestPt) {
+                                       Point closestPt) {
 
     /*
      * Let A = pt - l0 B = l1 - l0
@@ -264,13 +249,10 @@ public final class MyMath {
 
   /**
    * Calculate the parameter for a point on a line
-   * 
-   * @param pt
-   *          FPoint2, assumed to be on line
-   * @param s0
-   *          start point of line segment (t = 0.0)
-   * @param s1
-   *          end point of line segment (t = 1.0)
+   *
+   * @param pt FPoint2, assumed to be on line
+   * @param s0 start point of line segment (t = 0.0)
+   * @param s1 end point of line segment (t = 1.0)
    * @return t value associated with pt
    */
   public static float positionOnSegment(Point pt, Point s0, Point s1) {
@@ -289,32 +271,23 @@ public final class MyMath {
 
   /**
    * Determine distance of point from segment
-   * 
-   * @param pt
-   *          FPoint2
-   * @param l0
-   *          FPoint2
-   * @param l1
-   *          FPoint2
-   * @param ptOnSeg
-   *          if not null, closest point on segment to point is stored here
-   * @return float
+   *
+   * @param ptOnSeg if not null, closest point on segment to point is stored here
    */
   public static float ptDistanceToSegment(Point pt, Point l0, Point l1,
-      Point ptOnSeg) {
+                                          Point ptOnSeg) {
 
-    float dist = 0;
+    float dist;
     // calculate parameter for position on segment
     float t = positionOnSegment(pt, l0, l1);
 
-    Point cpt = null;
     if (t < 0) {
-      cpt = l0;
+      Point cpt = l0;
       dist = distanceBetween(pt, cpt);
       if (ptOnSeg != null)
         ptOnSeg.setTo(cpt);
     } else if (t > 1) {
-      cpt = l1;
+      Point cpt = l1;
       dist = distanceBetween(pt, cpt);
       if (ptOnSeg != null)
         ptOnSeg.setTo(cpt);
@@ -326,17 +299,13 @@ public final class MyMath {
 
   /**
    * Calculate point of intersection of line segment with horizontal line
-   * 
-   * @param pt1
-   * @param pt2
-   * @param yLine
-   * @param parameter
-   *          if not null, and intersection point found, parameter of
-   *          intersection returned here
+   *
+   * @param parameter if not null, and intersection point found, parameter of
+   *                  intersection returned here
    * @return point of intersection, or null
    */
   public static Point segHorzLineIntersection(Point pt1, Point pt2,
-      float yLine, float[] parameter) {
+                                              float yLine, float[] parameter) {
     Point ipt = null;
 
     float denom = pt2.y - pt1.y;
@@ -355,7 +324,7 @@ public final class MyMath {
   }
 
   public static Point segSegIntersection(Point s1, Point s2, Point t1,
-      Point t2, float[] parameters) {
+                                         Point t2, float[] parameters) {
     Point ipt = null;
     do {
       // First see if segment's bounding boxes intersect; if not, no
@@ -400,31 +369,27 @@ public final class MyMath {
   }
 
   public static Point lineLineIntersection(Point s1, Point s2, Point t1,
-      Point t2, float[] parameter) {
-    Point ipt = null;
-    do {
-      float ty = (t2.y - t1.y);
-      float sx = (s2.x - s1.x);
-      float tx = (t2.x - t1.x);
-      float sy = (s2.y - s1.y);
+                                           Point t2, float[] parameter) {
+    float ty = (t2.y - t1.y);
+    float sx = (s2.x - s1.x);
+    float tx = (t2.x - t1.x);
+    float sy = (s2.y - s1.y);
 
-      float denom = ty * sx - tx * sy;
+    float denom = ty * sx - tx * sy;
 
-      testForZero(denom);
+    testForZero(denom);
 
-      float numer1 = tx * (s1.y - t1.y) - ty * (s1.x - t1.x);
-      float ua = numer1 / denom;
-      if (parameter != null) {
-        parameter[0] = ua;
-      }
+    float numer1 = tx * (s1.y - t1.y) - ty * (s1.x - t1.x);
+    float ua = numer1 / denom;
+    if (parameter != null) {
+      parameter[0] = ua;
+    }
 
-      ipt = new Point(s1.x + ua * sx, s1.y + ua * sy);
-    } while (false);
-    return ipt;
+    return new Point(s1.x + ua * sx, s1.y + ua * sy);
   }
 
   public static String dumpMatrix(float[] values, int rows, int columns,
-      boolean rowMajorOrder) {
+                                  boolean rowMajorOrder) {
     StringBuilder sb = new StringBuilder();
     for (int row = 0; row < rows; row++) {
       sb.append("[ ");
@@ -443,7 +408,7 @@ public final class MyMath {
   }
 
   public static Point pointBesideSegment(Point s1, Point s2, float distance,
-      float t) {
+                                         float t) {
     Point m = interpolateBetween(s1, s2, t);
     float a = polarAngleOfSegment(s1, s2);
     return pointOnCircle(m, a - 90 * M_DEG, distance);
@@ -523,13 +488,11 @@ public final class MyMath {
 
   /**
    * Determine if the pseudoangle defined by two rays is convex
-   * 
-   * @param startAngle
-   *          pseudoangle of first ray
-   * @param endAngle
-   *          pseudoangle of second ray
+   *
+   * @param startAngle pseudoangle of first ray
+   * @param endAngle   pseudoangle of second ray
    * @return true iff the ccw angle from startAngle to endAngle is greater than
-   *         zero and less than pi
+   * zero and less than pi
    */
   public static boolean pseudoAngleIsConvex(float startAngle, float endAngle) {
     return normalizePseudoAngle(endAngle - startAngle) > 0;
@@ -537,13 +500,11 @@ public final class MyMath {
 
   /**
    * Determine if the angle defined by two rays is convex
-   * 
-   * @param startAngle
-   *          angle of first ray
-   * @param endAngle
-   *          angle of second ray
+   *
+   * @param startAngle angle of first ray
+   * @param endAngle   angle of second ray
    * @return true iff the ccw angle from startAngle to endAngle is greater than
-   *         zero and less than pi
+   * zero and less than pi
    */
   public static boolean angleIsConvex(float startAngle, float endAngle) {
     return normalizeAngle(endAngle - startAngle) > 0;
@@ -566,7 +527,7 @@ public final class MyMath {
   }
 
   public static Point randomPointInDisc(Random random, Point origin,
-      float radius) {
+                                        float radius) {
     float val = radius * (float) Math.sqrt(random.nextFloat());
     return pointOnCircle(origin, random.nextFloat() * PI * 2, val);
   }
@@ -669,7 +630,7 @@ public final class MyMath {
   }
 
   public static Matrix calcRectFitRectTransform(Rect originalRect,
-      Rect fitRect, boolean preserveAspectRatio) {
+                                                Rect fitRect, boolean preserveAspectRatio) {
     float scaleX = fitRect.width / originalRect.width;
     float scaleY = fitRect.height / originalRect.height;
     if (preserveAspectRatio) {

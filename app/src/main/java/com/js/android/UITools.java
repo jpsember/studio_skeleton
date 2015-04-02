@@ -128,7 +128,7 @@ public final class UITools {
    */
   public static String dump(MotionEvent event) {
     if (event == null)
-      return d(event);
+      return d((MotionEvent)null);
 
     int action = event.getActionMasked();
     int index = event.getActionIndex();

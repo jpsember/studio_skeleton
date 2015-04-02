@@ -6,6 +6,7 @@ import com.js.basic.Files;
 
 import android.content.Context;
 import android.widget.Toast;
+
 import static com.js.basic.Tools.*;
 
 public final class AndroidTools {
@@ -14,7 +15,7 @@ public final class AndroidTools {
    * A do-nothing method that can be called to avoid 'unused import' warnings
    * related to this class
    */
-  public static final void doNothingAndroid() {
+  public static void doNothingAndroid() {
   }
 
   /**
@@ -34,16 +35,11 @@ public final class AndroidTools {
 
   /**
    * Display toast message describing an exception
-   * 
-   * @param context
-   * @param throwable
-   *          exception received
-   * @param optional
-   *          message message to display within toast (may be shown with
-   *          exception message as well)
+   *
+   * @param message optional message to display within toast
    */
   public static void showException(Context context, Throwable exception,
-      String message) {
+                                   String message) {
     warning("caught: " + exception);
     if (message == null)
       message = "Caught";

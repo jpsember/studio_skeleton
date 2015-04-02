@@ -67,8 +67,6 @@ public class MyTestCase extends TestCase {
 	 * Create a temporary directory Note: the web says this code may include
 	 * race conditions and security problems; but if we're only using it for
 	 * testing, I'm not concerned.
-	 * 
-	 * @return
 	 */
 	public File tempDirectory() {
 		if (tempDirectory == null) {
