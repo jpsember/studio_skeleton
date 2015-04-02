@@ -130,13 +130,17 @@ public class FreezableTest extends MyTestCase {
    * overwritten), but avoids the synchronization.  Note that if the evaluation is not
    * deterministic, this may violate the object's immutability (since different threads
    * may end up with different values for this field!).  For this reason, maybe the second
-   * method variant should be avoided.
+   * variant should be avoided.
    * <p/>
    * The field holding the lazy-evaluated value must be marked volatile.  This prevents the
    * possibility that its value is cached by one thread, and hence fails to see its value being
    * changed by some other thread.  It also ensures that reads and writes to the value are
    * atomic (this is always the case for reference types, or primitive types other than
    * long or double).
+   * <p/>
+   * The first variant is referred to in the literature as 'Double-Checked Locking (using Volatile)'
+   * and ONLY WORKS WITH JDK >= 5; see:
+   * <a href="http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html">this link</a>
    */
 
   private void performLazyEvaluationOfType(EvalType type) {
