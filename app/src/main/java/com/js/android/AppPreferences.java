@@ -39,7 +39,7 @@ public class AppPreferences {
     } else {
       sPreferences = context.getSharedPreferences("__test_preferences__",
           Context.MODE_PRIVATE);
-      sPreferences.edit().clear().commit();
+      sPreferences.edit().clear().apply();
     }
   }
 
