@@ -1,5 +1,6 @@
 package com.js.basic;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1116,6 +1117,22 @@ public final class Tools {
   public static <T extends Freezable> T freeze(T obj) {
     obj.freeze();
     return obj;
+  }
+
+  /**
+   * Print a message related to an app starting.  Prints a bunch of
+   * linefeeds (to effectively clear the console), and the time of day
+   */
+  public static void startApp(Object app) {
+    Calendar cal = Calendar.getInstance();
+    java.text.SimpleDateFormat simpleDateFormat = new java.text.SimpleDateFormat(
+        "h:mm:ss");
+    String strTime = simpleDateFormat.format(cal.getTime());
+    for (int i = 0; i < 40; i++)
+      pr("");
+    // Print the prefix "!!START!!" as a message to mylogcat (https://github.com/jpsember/mylogcat)
+    pr("!!START!!--------------- Start of " + app.getClass().getSimpleName()
+        + " ----- " + strTime + " -------------\n\n\n");
   }
 
   private static long sTimeStampPreviousTime;
