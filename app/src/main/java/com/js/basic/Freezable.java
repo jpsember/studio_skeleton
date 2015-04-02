@@ -1,11 +1,7 @@
 package com.js.basic;
 
 /**
- * <pre>
- * 
  * Interface representing objects that can be frozen to an immutable state
- * 
- * </pre>
  */
 public interface Freezable {
 
