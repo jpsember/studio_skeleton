@@ -27,17 +27,19 @@ public class AppPreferences {
   /**
    * Prepare the preferences; must be called before any other methods.
    *
-   * @param context application or activity context (treated differently in test mode)
+   * @param context application or activity context; if not an activity, the preferences
+   *                are cleared
    */
   public static void prepare(Context context) {
-    if (sPreferences != null)
-      throw new IllegalStateException("Preferences already prepared");
-
     if (context instanceof Activity) {
+      if (sPreferences != null)
+        throw new IllegalStateException("Preferences already prepared");
+
       sPreferences = ((Activity) context).getPreferences(Context.MODE_PRIVATE);
     } else {
       sPreferences = context.getSharedPreferences("__test_preferences__",
           Context.MODE_PRIVATE);
+      sPreferences.edit().clear().commit();
     }
   }
 
